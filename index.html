@@ -5,177 +5,281 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sistema de Pedidos</title>
   
-
-<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   <style>
+    :root {
+      /* Paleta de Cores */
+      --primary-color: #2c3e50; /* Azul escuro principal */
+      --secondary-color: #34495e; /* Azul mais escuro para elementos de fundo */
+      --accent-color: #3498db; /* Azul vibrante para botões e destaques */
+      --success-color: #2ecc71; /* Verde para sucesso */
+      --danger-color: #e74c3c; /* Vermelho para ações perigosas */
+      --text-color: #333;
+      --light-text-color: #ecf0f1; /* Texto para fundo escuro */
+      --background-light: #f8f9fa; /* Fundo claro */
+      --background-card: #ffffff; /* Fundo de cards/elementos */
+      --border-color: #e0e0e0;
+      --shadow-light: 0 2px 5px rgba(0,0,0,0.1);
+      --shadow-strong: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--background-light);
+      color: var(--text-color);
+      transition: margin-left 0.3s ease-in-out; /* Transição para o empurrão do conteúdo */
     }
+    
+    /* ---- AJUSTE AQUI: Margem para o conteúdo principal quando a sidebar está ativa ---- */
+    body.sidebar-active #app-header,
+    body.sidebar-active .container {
+        margin-left: 250px; /* Empurra o conteúdo para a direita para dar espaço à sidebar */
+    }
+    
     header {
-      background: #2d89ef;
-      color: white;
+      background: var(--primary-color);
+      color: var(--light-text-color);
       display: flex;
       align-items: center;
-      padding: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      padding: 10px 15px;
+      box-shadow: var(--shadow-light);
+      transition: margin-left 0.3s ease-in-out; /* Transição para o empurrão */
     }
     .menu-btn {
-      font-size: 24px;
+      font-size: 28px; /* Ícone maior */
       cursor: pointer;
-      margin-right: 10px;
+      margin-right: 15px;
+      padding: 5px;
+    }
+    .menu-btn:hover {
+        opacity: 0.8;
+    }
+    header h3 {
+        margin: 0;
+        font-weight: 600;
     }
     .container {
-      padding: 15px;
+      padding: 20px; /* Mais padding para um visual mais arejado */
+      transition: margin-left 0.3s ease-in-out; /* Transição para o empurrão */
     }
     .sidebar {
       position: fixed;
       top: 0; left: 0;
       width: 250px;
       height: 100%;
-      background: #333;
-      color: white;
+      background: var(--secondary-color);
+      color: var(--light-text-color);
       padding: 20px;
       display: flex;
       flex-direction: column;
       z-index: 100;
+      /* ---- AJUSTE AQUI: Volta o transform original ---- */
       transform: translateX(-100%);
       transition: transform 0.3s ease-in-out;
       justify-content: space-between;
       box-sizing: border-box;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.2);
     }
     .sidebar.active {
         transform: translateX(0);
     }
+    .sidebar a {
+        color: var(--light-text-color);
+        text-decoration: none;
+        padding: 12px 15px;
+        margin-bottom: 5px;
+        border-radius: 5px;
+        transition: background 0.2s ease;
+        display: block;
+    }
+    .sidebar a:hover {
+        background: #4a6681; /* Um tom ligeiramente mais claro para hover */
+    }
     .sidebar-content {
         display: flex;
         flex-direction: column;
+        flex-grow: 1; /* Para ocupar o espaço disponível */
     }
     .sidebar-bottom {
         padding-top: 20px;
         border-top: 1px solid #555;
+        margin-top: 20px; /* Mais espaço */
     }
     .sidebar-bottom button {
-        background: #dc3545;
+        background: var(--danger-color); /* Vermelho para reset */
         color: white;
         border: none;
-        padding: 10px;
+        padding: 12px;
         border-radius: 5px;
         cursor: pointer;
         width: 100%;
         margin-top: 10px;
+        font-size: 16px;
+        transition: background 0.2s ease;
     }
     .sidebar-bottom button:hover {
-        background: #c82333;
+        background: #c0392b; /* Tom mais escuro para hover */
     }
-    /* Estilos para o botão de Logout */
     .sidebar-bottom .logout-btn {
-        background: #555; /* Cor mais neutra para logout */
-        margin-bottom: 10px; /* Espaço entre logout e reset */
+        background: var(--secondary-color); /* Neutro para logout */
+        border: 1px solid var(--light-text-color);
+        margin-bottom: 10px;
     }
     .sidebar-bottom .logout-btn:hover {
-        background: #777;
+        background: #4a6681;
+    }
+    .sidebar-bottom .config-btn { /* Estilo para o botão de Configurações se for um botão */
+        background: var(--accent-color);
+        border: none;
+        margin-top: 10px;
+    }
+    .sidebar-bottom .config-btn:hover {
+        background: #2980b9;
     }
 
-    input, button, select {
+
+    input[type="text"], input[type="number"], input[type="password"], input[type="email"], select, textarea {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin: 8px 0;
       box-sizing: border-box;
-      border-radius: 5px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px; /* Bordas mais arredondadas */
+      font-size: 16px;
+      background-color: var(--background-card);
     }
     textarea {
-        width: 100%;
-        padding: 10px;
+        min-height: 120px; /* Altura padrão para o textarea */
+        resize: vertical; /* Permite redimensionar verticalmente */
+    }
+    button {
+        background: var(--accent-color);
+        color: white;
+        border: none;
+        padding: 12px 20px;
         margin: 8px 0;
-        box-sizing: border-box;
-        border-radius: 5px;
-        min-height: 150px; /* Altura padrão para o textarea */
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.2s ease, transform 0.1s ease;
+        text-align: center;
+        display: inline-block; /* Para o flex wrap funcionar bem */
+    }
+    button:hover {
+        background: #2980b9;
+        transform: translateY(-1px);
+    }
+    button:active {
+        transform: translateY(0);
     }
 
-    /* ---- ALTERAÇÕES AQUI ---- */
-    /* Estilo para o contêiner das categorias para usar flexbox */
+    h3 {
+        color: var(--primary-color);
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 24px;
+        font-weight: 600;
+    }
+    h4 {
+        color: var(--secondary-color);
+        margin-top: 20px;
+        margin-bottom: 10px;
+        font-size: 18px;
+    }
+
+    /* ---- ALTERAÇÕES PARA CATEGORIAS 3x3 E NOVA ESTÉTICA ---- */
     #categorias {
-      display: flex;
-      flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha se não houver espaço */
-      gap: 8px; /* Espaço entre os botões */
-      margin-top: 10px;
+      display: grid; /* Usamos Grid para controle mais preciso de colunas */
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); /* 3 por linha, responsivo */
+      gap: 10px; /* Espaço entre os botões */
+      margin-top: 15px;
+      padding: 10px;
+      background: var(--background-card);
+      border-radius: 10px;
+      box-shadow: var(--shadow-light);
     }
 
-    /* Estilos para os botões de categoria */
     .category-btn, .add-category-btn {
-      /* display: inline-flex;  -- Removido, pois o pai já é flex */
-      flex-shrink: 0; /* Impede que os botões encolham */
-      min-width: 80px; /* Garante uma largura mínima para os botões */
-      max-width: 150px; /* Define uma largura máxima */
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 8px;
-      /* margin: 4px; -- Removido, pois o gap do pai já cuida disso */
-      font-size: 12px;
+      background: var(--background-light);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
       cursor: pointer;
       position: relative;
       transition: all 0.2s ease-in-out;
-      box-sizing: border-box; /* Garante que padding e borda sejam incluídos na largura */
-      display: flex; /* Para alinhar o texto e os botões de ação */
+      box-sizing: border-box;
+      display: flex;
       align-items: center;
-      justify-content: space-between; /* Espaço entre o nome e os botões de ação */
+      justify-content: space-between;
+      color: var(--text-color);
+      text-align: left; /* Alinha texto à esquerda */
+      min-height: 50px; /* Altura mínima para botões */
     }
 
     .add-category-btn {
-      background: #2d89ef;
+      background: var(--success-color); /* Verde para adicionar */
       color: white;
       border: none;
-      /* Removido o display inline-block daqui, já é flex item */
-      justify-content: center; /* Centraliza o texto "Nova Categoria" */
+      justify-content: center;
+      font-weight: bold;
     }
-    /* ---- FIM DAS ALTERAÇÕES ---- */
-
-
     .add-category-btn:hover {
-      background: #256bb8;
+      background: #27ae60;
+    }
+
+    .category-btn:hover {
+      background: #f0f0f0;
+      border-color: var(--accent-color);
     }
     .category-btn.active {
-      border: 2px solid #2d89ef;
-      box-shadow: 0 0 8px rgba(45, 137, 239, 0.5);
+      border: 2px solid var(--accent-color);
+      box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+      background: var(--accent-color); /* Cor de fundo quando ativo */
+      color: white;
     }
+    .category-btn.active .action-buttons button {
+        color: white; /* Ícones brancos quando a categoria está ativa */
+    }
+
     .products {
-      margin-top: 15px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); /* Ajustado para produtos */
+      gap: 15px;
       justify-content: flex-start;
     }
     .product {
-      background: white;
-      padding: 5px;
-      width: calc(33.33% - 10px);
-      max-width: 120px;
+      background: var(--background-card);
+      padding: 10px;
       border-radius: 10px;
       text-align: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: var(--shadow-light);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 80px;
+      min-height: 150px; /* Altura mínima para produtos */
       position: relative;
       transition: all 0.2s ease-in-out;
+      overflow: hidden; /* Para esconder o action-buttons se for muito grande */
     }
     .product.active {
-      border: 2px solid #2d89ef;
-      box-shadow: 0 0 8px rgba(45, 137, 239, 0.5);
+      border: 2px solid var(--accent-color);
+      box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
     }
     .product strong {
-      font-size: 13px;
+      font-size: 15px;
       display: block;
-      margin-bottom: 2px;
+      margin-bottom: 5px;
+      color: var(--primary-color);
+      font-weight: 600;
     }
     .product span {
-      font-size: 11px;
+      font-size: 13px;
       display: block;
-      margin-top: 2px;
+      margin-top: 5px;
+      color: var(--text-color);
     }
     .product > div:nth-child(2) {
         flex-grow: 1;
@@ -183,87 +287,128 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        padding: 5px 0;
     }
     .product .quantity-control {
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-top: 5px;
+      margin-top: 10px;
+      background: var(--background-light);
+      border-radius: 5px;
+      padding: 5px;
     }
     .product .quantity-control button {
-      width: 30px;
-      height: 30px;
+      width: 35px;
+      height: 35px;
       padding: 0;
-      margin: 0 3px;
-      border: 1px solid #ccc;
-      background: #f0f0f0;
-      color: #333;
-      font-size: 16px;
+      margin: 0 5px;
+      border: 1px solid var(--border-color);
+      background: white;
+      color: var(--text-color);
+      font-size: 20px;
       border-radius: 50%;
       display: flex;
       justify-content: center;
       align-items: center;
       cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .product .quantity-control button:hover {
+      background: #e0e0e0;
     }
     .product .quantity-control span {
-      font-size: 14px;
+      font-size: 16px;
       font-weight: bold;
-      min-width: 20px;
+      min-width: 25px;
       text-align: center;
       margin: 0;
       display: inline-block;
+      color: var(--primary-color);
     }
     .total {
       font-weight: bold;
-      font-size: 18px;
-      margin-top: 10px;
-      color: #2d89ef;
+      font-size: 22px;
+      margin-top: 20px;
+      color: var(--accent-color);
+      text-align: right;
+      padding: 10px 0;
+      border-top: 1px solid var(--border-color);
     }
     .buttons {
       display: flex;
       gap: 10px;
-      margin-top: 10px;
-      flex-wrap: wrap; /* Permite quebrar linha para botões adicionais */
+      margin-top: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     .buttons button {
       flex: 1;
-      background: #2d89ef;
+      background: var(--accent-color);
       color: white;
       border: none;
-      min-width: 150px; /* Garante que os botões não fiquem muito pequenos */
+      min-width: 160px;
+      max-width: 200px; /* Limita a largura para botões em telas maiores */
     }
+    .buttons button:nth-child(2) { /* WhatsApp button */
+        background: #25d366; /* Verde WhatsApp */
+    }
+    .buttons button:nth-child(2):hover {
+        background: #1da851;
+    }
+    .buttons button:nth-child(3) { /* Pedido Composto button */
+        background: #f39c12; /* Laranja */
+    }
+    .buttons button:nth-child(3):hover {
+        background: #e67e22;
+    }
+
+
     .category-btn .action-buttons,
     .product .action-buttons {
-      display: inline-flex;
-      gap: 3px;
-      margin-left: 5px;
+      display: flex; /* Usar flex para os botões de ação */
+      gap: 5px; /* Espaço entre editar e excluir */
+      margin-left: auto; /* Empurra para a direita */
     }
     .edit-btn, .delete-btn {
       background: none;
       border: none;
-      color: #666;
+      color: var(--text-color); /* Cor dos ícones */
       cursor: pointer;
-      font-size: 12px;
+      font-size: 16px; /* Tamanho maior para ícones */
       vertical-align: middle;
-      padding: 0 2px;
+      padding: 2px;
       line-height: 1;
+      opacity: 0.7;
+      transition: opacity 0.2s ease, color 0.2s ease;
     }
     .delete-btn {
-        color: #dc3545;
+        color: var(--danger-color);
     }
+    .edit-btn:hover, .delete-btn:hover {
+        opacity: 1;
+        color: var(--accent-color); /* Destaca ao passar o mouse */
+    }
+    .delete-btn:hover {
+        color: var(--danger-color);
+    }
+
     .product > div:first-child {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-end; /* Alinha botões de ação para a direita no produto */
         align-items: center;
         width: 100%;
         position: absolute;
         top: 5px;
-        left: 0;
-        padding: 0 5px;
+        right: 5px; /* Ajustado para canto superior direito */
+        padding: 0;
         box-sizing: border-box;
     }
     .product > div:nth-child(2) {
-        margin-top: 15px;
+        margin-top: 15px; /* Espaço para os botões de ação */
+    }
+    .product .action-buttons {
+        gap: 2px; /* Mais compacto nos produtos */
     }
 
     /* Estilos para a tela de login */
@@ -272,53 +417,73 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 80vh; /* Ocupa a maior parte da tela */
+        min-height: 80vh;
         text-align: center;
+        background: var(--background-light);
+        padding: 20px;
     }
     #login-container h3 {
-        color: #333;
-        margin-bottom: 20px;
+        color: var(--primary-color);
+        margin-bottom: 25px;
+        font-size: 32px;
     }
     #login-container input {
         width: 80%;
-        max-width: 300px;
+        max-width: 350px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        font-size: 18px;
     }
     #login-container button {
         width: 80%;
-        max-width: 300px;
-        background: #2d89ef;
+        max-width: 350px;
+        background: var(--accent-color);
         color: white;
         border: none;
         margin-top: 10px;
+        font-size: 18px;
+        padding: 15px;
     }
     #login-container button:hover {
-        background: #256bb8;
+        background: #2980b9;
     }
     #login-message {
-        color: red;
-        margin-top: 10px;
-    }
-
-    /* Estilos para a nova tela de mensagem automática */
-    #configurar-mensagem-automatica label {
-        display: block;
-        margin-bottom: 5px;
+        color: var(--danger-color);
+        margin-top: 15px;
         font-weight: bold;
     }
-    #configurar-mensagem-automatica .info {
-        background: #e0f2f7;
-        border-left: 5px solid #2d89ef;
-        padding: 10px;
+
+    /* Estilos para mensagens de sucesso/informação */
+    .info, .message-success, .message-error {
+        padding: 12px;
         margin-bottom: 15px;
-        border-radius: 4px;
+        border-radius: 8px;
+        font-size: 14px;
     }
-    #configurar-mensagem-automatica .info code {
+    .info {
+        background: #e0f2f7;
+        border-left: 5px solid var(--accent-color);
+        color: #2c3e50;
+    }
+    .info code {
         background: #f0f0f0;
         padding: 2px 4px;
         border-radius: 3px;
-        font-family: monospace;
+        font-family: 'Courier New', Courier, monospace;
     }
-
+    .message-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .message-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
     /* Estilos para o Modal de E-mail */
     .email-modal {
       display: none; /* Hidden by default */
@@ -329,78 +494,85 @@
       width: 100%; /* Full width */
       height: 100%; /* Full height */
       overflow: auto; /* Enable scroll if needed */
-      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      background-color: rgba(0,0,0,0.5); /* Black w/ more opacity */
       justify-content: center;
       align-items: center;
     }
 
     .email-modal-content {
-      background-color: #fefefe;
+      background-color: var(--background-card);
       margin: auto;
-      padding: 20px;
+      padding: 30px;
       border: 1px solid #888;
       width: 90%;
-      max-width: 400px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      max-width: 450px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-strong);
       position: relative;
     }
 
     .email-modal-content .close-button {
       color: #aaa;
-      float: right;
-      font-size: 28px;
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 32px;
       font-weight: bold;
       cursor: pointer;
     }
 
     .email-modal-content .close-button:hover,
     .email-modal-content .close-button:focus {
-      color: black;
+      color: var(--text-color);
       text-decoration: none;
     }
 
     .email-modal-content h3 {
       margin-top: 0;
-      color: #333;
+      color: var(--primary-color);
+      font-size: 26px;
+      margin-bottom: 20px;
     }
 
     .email-modal-content input[type="email"] {
       width: calc(100% - 20px);
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 16px;
     }
 
     .email-modal-content button {
-      background-color: #2d89ef;
+      background-color: var(--accent-color);
       color: white;
-      padding: 10px 15px;
+      padding: 12px 20px;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
       width: auto;
+      font-size: 16px;
+      margin-top: 10px;
     }
 
     .email-modal-content button:hover {
-      background-color: #256bb8;
+      background-color: #2980b9;
     }
 
     .recent-emails-list {
-      margin-top: 15px;
-      max-height: 150px;
+      margin-top: 20px;
+      max-height: 180px;
       overflow-y: auto;
-      border-top: 1px solid #eee;
-      padding-top: 10px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 15px;
     }
 
     .recent-emails-list div {
-      padding: 8px 0;
+      padding: 10px 0;
       cursor: pointer;
       border-bottom: 1px dashed #eee;
       color: #555;
-      font-size: 14px;
+      font-size: 15px;
     }
 
     .recent-emails-list div:last-child {
@@ -408,8 +580,57 @@
     }
 
     .recent-emails-list div:hover {
-      background-color: #f0f0f0;
+      background-color: #f5f5f5;
       border-radius: 5px;
+    }
+
+    /* Media Queries para Responsividade */
+    @media (max-width: 768px) {
+        .product {
+            width: calc(50% - 15px); /* 2 produtos por linha em telas menores */
+        }
+        #categorias {
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); /* Ajusta categorias para telas menores */
+        }
+        .sidebar {
+            width: 220px; /* Sidebar um pouco menor em telas pequenas */
+        }
+        body.sidebar-active #app-header,
+        body.sidebar-active .container {
+            margin-left: 220px;
+        }
+        header h3 {
+            font-size: 20px;
+        }
+        .menu-btn {
+            font-size: 24px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .product {
+            width: calc(100% - 15px); /* 1 produto por linha em celulares pequenos */
+            max-width: none;
+        }
+        #categorias {
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* 2 ou 3 em telas menores */
+            padding: 8px;
+        }
+        .container {
+            padding: 10px;
+        }
+        .buttons button {
+            min-width: unset; /* Remove min-width */
+            width: 100%; /* Ocupa largura total */
+            max-width: none;
+        }
+        .sidebar {
+            width: 100%; /* Sidebar ocupa toda a largura em celulares */
+        }
+        body.sidebar-active #app-header,
+        body.sidebar-active .container {
+            margin-left: 0; /* Não empurra o conteúdo, a sidebar cobre */
+        }
     }
   </style>
 </head>
@@ -425,7 +646,7 @@
     <a onclick="mostrarTela('configurar-mensagem-automatica')">💬 Mensagem Auto.</a>
 </div>
   <div class="sidebar-bottom">
-    <a onclick="mostrarTela('configuracoes')">⚙️ Configurações</a> 
+    <a onclick="mostrarTela('configuracoes')" class="config-btn">⚙️ Configurações</a> 
     <button class="logout-btn" onclick="logout()">🚪 Sair</button>
     <button onclick="resetarDados()">💥 Resetar Dados</button>
   </div>
@@ -441,7 +662,7 @@
     <input type="text" id="username" placeholder="Nome de Usuário">
     <input type="password" id="password" placeholder="Senha">
     <button onclick="login()">Entrar / Cadastrar</button>
-    <p id="login-message" style="display:none;"></p>
+    <p id="login-message" class="message-error" style="display:none;"></p>
 </div>
 
 
@@ -449,8 +670,7 @@
     <div class="container" id="main-container">
       <h3>Novo Pedido</h3>
       
-
-<input list="clientes-list" id="cliente" placeholder="Nome ou Telefone do Cliente (Ex: Maria / 11999999999)" oninput="filtrarClientesPorInput()" />
+      <input list="clientes-list" id="cliente" placeholder="Nome ou Telefone do Cliente (Ex: Maria / 11999999999)" oninput="filtrarClientesPorInput()" />
       <datalist id="clientes-list"></datalist>
       
       <div>
@@ -465,7 +685,7 @@
         <button onclick="salvarPedido(false)">WhatsApp</button>
         <button id="btnAdicionarComposto" onclick="adicionarPedidoComposto()">➕ Pedido Composto</button>
       </div>
-      <div id="pedidoCompostoInfo" style="margin-top: 15px; background-color: #fffbe6; border: 1px solid #ffe680; padding: 10px; border-radius: 5px; display: none;">
+      <div id="pedidoCompostoInfo" class="info" style="display: none;">
         <p>Pedido composto ativo. Primeiro pedido para: <strong id="nomePrimeiroPedido"></strong> (Total: R$<span id="totalPrimeiroPedido"></span>).</p>
         <p>Agora monte o segundo pedido para o familiar. Ao finalizar, clique em "Salvar Pedido" ou "WhatsApp".</p>
         <button style="background-color: #f0ad4e; margin-top: 5px;" onclick="cancelarPedidoComposto()">Cancelar Pedido Composto</button>
@@ -474,12 +694,11 @@
 
     <div class="container" id="cadastrar-cliente" style="display:none">
       <h3>Cadastro de Cliente</h3>
-      <input type="text" id="nomeCliente" placeholder="Nome do Cliente" oninput="autocompletarCliente('nome')">
-      <input type="text" id="numeroCliente" placeholder="Número do WhatsApp" oninput="autocompletarCliente('numero')">
+      <input type="text" id="nomeCliente" placeholder="Nome do Cliente">
+      <input type="text" id="numeroCliente" placeholder="Número do WhatsApp">
       
-
-<button onclick="salvarCliente()">Salvar Cliente</button>
-      <div id="mensagemSalvo" style="display:none;color:green;margin-top:10px;">Cliente salvo com sucesso!</div>
+      <button onclick="salvarCliente()">Salvar Cliente</button>
+      <p id="mensagemSalvo" class="message-success" style="display:none;"></p>
     </div>
 
     <div class="container" id="novo-produto" style="display:none">
@@ -489,9 +708,9 @@
       <select id="categoriaProduto"></select>
       <button onclick="adicionarProduto()">Salvar Produto</button>
 
-      <hr style="margin: 20px 0;"> 
+      <hr style="margin: 30px 0; border-color: var(--border-color);"> 
 
-<h3>Importar Produtos de Planilha</h3>
+      <h3>Importar Produtos de Planilha</h3>
       <p>A planilha deve ter as colunas:</p>
       <ul>
         <li>**Coluna A:** Categoria</li>
@@ -499,7 +718,7 @@
         <li>**Coluna C:** Preço (apenas números)</li>
       </ul>
       <input type="file" id="importProductsFile" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onchange="importarProdutosPlanilha(event)">
-      <p id="importProductsMessage" style="color: green; margin-top: 10px;"></p>
+      <p id="importProductsMessage" class="message-success" style="display: none;"></p>
     </div>
 
     <div class="container" id="historico" style="display:none">
@@ -512,7 +731,7 @@
       <h3>Backup de Contatos (.vcf)</h3>
       <p>Selecione um arquivo <strong>.vcf</strong> exportado do seu celular:</p>
       <input type="file" accept=".vcf" onchange="processarVCF(this)">
-      <div id="resultadoVCF" style="margin-top: 10px; color: green;"></div>
+      <p id="resultadoVCF" class="message-success" style="display: none;"></p>
     </div>
 
     
@@ -540,7 +759,7 @@
         <textarea id="templateMensagemComposta" placeholder="Ex: Oi {{NOME_CLIENTE}} hoje você comprou:\n{{ITENS_PEDIDO}}\nTotal: R$ {{TOTAL_PEDIDO}}.\n\nE sua mãe, {{NOME_CLIENTE_2}}, comprou:\n{{ITENS_PEDIDO_2}}\nTotal: R$ {{TOTAL_PEDIDO_2}}."></textarea>
 
         <button onclick="salvarTemplateMensagem()">Salvar Modelos de Mensagem</button>
-        <p id="mensagemTemplateSalvo" style="color: green; margin-top: 10px; display:none;"></p>
+        <p id="mensagemTemplateSalvo" class="message-success" style="display:none;"></p>
     </div>
 
     
@@ -551,9 +770,9 @@
       <label for="emailAutomaticoInput">E-mail para Envio Automático:</label>
       <input type="email" id="emailAutomaticoInput" placeholder="seuemail@exemplo.com">
       <button onclick="salvarEmailAutomatico()">Salvar E-mail</button>
-      <p id="emailAutomaticoMessage" style="color: green; margin-top: 10px; display: none;"></p>
+      <p id="emailAutomaticoMessage" class="message-success" style="display: none;"></p>
 
-      <hr style="margin: 20px 0;">
+      <hr style="margin: 30px 0; border-color: var(--border-color);">
 
       <h4>Frequência de Envio Automático:</h4>
       <select id="frequenciaEnvio">
@@ -564,10 +783,10 @@
         <option value="yearly">Anualmente</option>
       </select>
       <button onclick="salvarFrequenciaEnvio()">Salvar Frequência</button>
-      <p id="frequenciaEnvioMessage" style="color: green; margin-top: 10px; display: none;"></p>
+      <p id="frequenciaEnvioMessage" class="message-success" style="display: none;"></p>
 
-      <hr style="margin: 20px 0;">
-      <button style="background-color: #28a745; margin-top: 10px;" onclick="enviarHistoricoEmailManual()">📧 Enviar Histórico Agora</button>
+      <hr style="margin: 30px 0; border-color: var(--border-color);">
+      <button style="background-color: var(--success-color); margin-top: 10px;" onclick="enviarHistoricoEmailManual()">📧 Enviar Histórico Agora</button>
     </div>
 </div>
 
@@ -581,7 +800,7 @@
   let currentUser = null; // Variável para armazenar o usuário logado
 
   // Variável para armazenar o template da mensagem do WhatsApp
-  let whatsappMessageTemplate = "Olá {{NOME_CLIENTE}}! Seu pedido foi:\n{{ITENS_PEDIDO}}.\nTotal: R$ {{TOTAL_PEDIDO}}.\nQuando puder me dá um retorno! Obrigado 🙌";
+  let whatsappMessageTemplate = "Olá {{NOME_CLIENTE}}! Seu pedido foi:\n{{ITENS_PEDIDO}}.\nTotal: R${{TOTAL_PEDIDO}}.\nQuando puder me dá um retorno! Obrigado 🙌";
   // NOVO: Variável para armazenar o template da mensagem composta
   let whatsappCompositeMessageTemplate = "Oi {{NOME_CLIENTE}} hoje você comprou:\n{{ITENS_PEDIDO}}\nTotal: R$ {{TOTAL_PEDIDO}}.\n\nE sua mãe, {{NOME_CLIENTE_2}}, comprou:\n{{ITENS_PEDIDO_2}}\nTotal: R$ {{TOTAL_PEDIDO_2}}.";
 
@@ -660,14 +879,15 @@
           document.getElementById('app-header').style.display = 'none';
           document.getElementById('login-container').style.display = 'flex';
           document.getElementById('sidebar').classList.remove('active'); // Garante que a sidebar esteja fechada
-          
+          document.body.classList.remove('sidebar-active'); // Remove classe do body
+
           // Zera as variáveis globais do app (importante para não misturar dados)
           produtos = {}; 
           clientes = [];
           historico = [];
           total = 0;
           categoriaAtiva = '';
-          whatsappMessageTemplate = "Olá {{NOME_CLIENTE}}! Seu pedido foi:\n{{ITENS_PEDIDO}}.\nTotal: R$ {{TOTAL_PEDIDO}}.\nQuando puder me dá um retorno! Obrigado 🙌";
+          whatsappMessageTemplate = "Olá {{NOME_CLIENTE}}! Seu pedido foi:\n{{ITENS_PEDIDO}}.\nTotal: R${{TOTAL_PEDIDO}}.\nQuando puder me dá um retorno! Obrigado 🙌";
           whatsappCompositeMessageTemplate = "Oi {{NOME_CLIENTE}} hoje você comprou:\n{{ITENS_PEDIDO}}\nTotal: R$ {{TOTAL_PEDIDO}}.\n\nE sua mãe, {{NOME_CLIENTE_2}}, comprou:\n{{ITENS_PEDIDO_2}}\nTotal: R$ {{TOTAL_PEDIDO_2}}.";
           primeiroPedidoComposto = null; // Zera o pedido composto também
           emailAutomaticoConfig = { email: '', frequencia: 'manual', lastSent: null }; // Zera configurações de e-mail
@@ -757,7 +977,7 @@
       if (savedTemplate) {
           whatsappMessageTemplate = savedTemplate;
       } else {
-          whatsappMessageTemplate = "Olá {{NOME_CLIENTE}}! Seu pedido foi:\n{{ITENS_PEDIDO}}.\nTotal: R$ {{TOTAL_PEDIDO}}.\nQuando puder me dá um retorno! Obrigado 🙌";
+          whatsappMessageTemplate = "Olá {{NOME_CLIENTE}}! Seu pedido foi:\n{{ITENS_PEDIDO}}.\nTotal: R${{TOTAL_PEDIDO}}.\nQuando puder me dá um retorno! Obrigado 🙌";
       }
 
       const savedCompositeTemplate = localStorage.getItem(getUserLocalStorageKey('whatsappCompositeMessageTemplate'));
@@ -784,6 +1004,8 @@
       salvarDadosNoLocalStorage(); 
       const messageElement = document.getElementById('mensagemTemplateSalvo');
       messageElement.innerText = "Modelos de mensagem salvos com sucesso!";
+      messageElement.classList.remove('message-error');
+      messageElement.classList.add('message-success');
       messageElement.style.display = 'block';
       setTimeout(() => {
           messageElement.style.display = 'none';
@@ -817,7 +1039,7 @@
       };
       total = 0;
       categoriaAtiva = '';
-      whatsappMessageTemplate = "Olá {{NOME_CLIENTE}}! Seu pedido foi:\n{{ITENS_PEDIDO}}.\nTotal: R$ {{TOTAL_PEDIDO}}.\nQuando puder me dá um retorno! Obrigado 🙌";
+      whatsappMessageTemplate = "Olá {{NOME_CLIENTE}}! Seu pedido foi:\n{{ITENS_PEDIDO}}.\nTotal: R${{TOTAL_PEDIDO}}.\nQuando puder me dá um retorno! Obrigado 🙌";
       whatsappCompositeMessageTemplate = "Oi {{NOME_CLIENTE}} hoje você comprou:\n{{ITENS_PEDIDO}}\nTotal: R$ {{TOTAL_PEDIDO}}.\n\nE sua mãe, {{NOME_CLIENTE_2}}, comprou:\n{{ITENS_PEDIDO_2}}\nTotal: R$ {{TOTAL_PEDIDO_2}}.";
       primeiroPedidoComposto = null; 
       emailAutomaticoConfig = { email: '', frequencia: 'manual', lastSent: null }; // NOVO: Reseta configurações de e-mail
@@ -843,6 +1065,8 @@
   function toggleSidebar() {
     const side = document.getElementById("sidebar");
     side.classList.toggle("active");
+    // Altera a classe no body para empurrar/desempurrar o conteúdo
+    document.body.classList.toggle('sidebar-active', side.classList.contains('active'));
   }
 
   function mostrarTela(id) {
@@ -850,7 +1074,11 @@
         alert("Por favor, faça login para acessar o sistema.");
         return;
     }
-    toggleSidebar();
+    // Fecha a sidebar ao mudar de tela, mas mantém o "empurrão" se estiver em tela larga
+    if (document.getElementById("sidebar").classList.contains('active')) {
+        toggleSidebar(); // Apenas fecha se estiver aberta
+    }
+
     document.querySelectorAll("#app-content .container").forEach(div => div.style.display = "none");
     document.getElementById(id).style.display = "block";
     if (id === 'novo-produto') preencherSelectCategoria();
@@ -859,15 +1087,9 @@
     if (id === 'configurar-mensagem-automatica') carregarTemplateMensagem();
     if (id === 'configuracoes') carregarConfiguracoesEmail();
 
-    if (id === 'cadastrar-cliente' || id === 'main-container') {
-        // Removido chamadas para atualizarListaLocais e atualizarListaLocaisBusca
-    }
     if (id === 'cadastrar-cliente') {
         document.getElementById("nomeCliente").value = "";
         document.getElementById("numeroCliente").value = "";
-        // Removido document.getElementById("localCliente").value = "";
-        // Removido atualizarListaClientesCadastro();
-        // Removido atualizarListaClientesCadastroNumero();
     }
     if (id === 'main-container') { 
         atualizarEstadoPedidoCompostoUI();
@@ -934,7 +1156,7 @@
     // Adiciona o botão "Adicionar Categoria"
     const addCatBtn = document.createElement("button");
     addCatBtn.className = "add-category-btn";
-    addCatBtn.innerText = "➕ Nova Categoria";
+    addCatBtn.innerHTML = "➕ Nova Categoria";
     addCatBtn.onclick = adicionarNovaCategoria;
     area.appendChild(addCatBtn);
 
@@ -998,7 +1220,7 @@
             <button class="edit-btn" onclick="editarOuExcluirProduto('${cat}', ${i}, 'editar')">✎</button>
             <button class="delete-btn" onclick="editarOuExcluirProduto('${cat}', ${i}, 'excluir')">✖</button>
           </div>
-          <div><strong>${p.nome}</strong><br>R$${p.preco.toFixed(2)}</div>
+          <div><strong>${p.nome}</strong><br>R$${p.preco.toFixed(2).replace('.', ',')}</div>
           <div class="quantity-control">
             <button onclick="alterarQtd('${cat}', ${i}, -1)">-</button>
             <span id="${cat}-${i}">${p.quantidade}</span>
@@ -1036,7 +1258,7 @@
     Object.values(produtos).forEach(lista => {
       lista.forEach(p => total += p.preco * p.quantidade);
     });
-    document.getElementById("total-area").innerText = `Total: R$ ${total.toFixed(2)}`;
+    document.getElementById("total-area").innerText = `Total: R$ ${total.toFixed(2).replace('.', ',')}`;
   }
 
   function getItensDoPedidoAtual() {
@@ -1087,11 +1309,11 @@
         
         let msgComposta = whatsappCompositeMessageTemplate;
         msgComposta = msgComposta.replace(/{{NOME_CLIENTE}}/g, primeiroPedidoComposto.nomeCliente);
-        msgComposta = msgComposta.replace(/{{ITENS_PEDIDO}}/g, primeiroPedidoComposto.itens.join(', '));
+        msgComposta = msgComposta.replace(/{{ITENS_PEDIDO}}/g, primeiroPedidoComposto.itens.join('\n')); // Cada item em uma nova linha
         msgComposta = msgComposta.replace(/{{TOTAL_PEDIDO}}/g, primeiroPedidoComposto.total.toFixed(2).replace('.', ','));
 
         msgComposta = msgComposta.replace(/{{NOME_CLIENTE_2}}/g, nomeSegundoCliente);
-        msgComposta = msgComposta.replace(/{{ITENS_PEDIDO_2}}/g, itensPedidoAtual.join(', '));
+        msgComposta = msgComposta.replace(/{{ITENS_PEDIDO_2}}/g, itensPedidoAtual.join('\n')); // Cada item em uma nova linha
         msgComposta = msgComposta.replace(/{{TOTAL_PEDIDO_2}}/g, totalSegundoPedido.toFixed(2).replace('.', ','));
         
         mensagemFinal = msgComposta;
@@ -1101,7 +1323,7 @@
     } else {
         let msg = whatsappMessageTemplate;
         msg = msg.replace(/{{NOME_CLIENTE}}/g, encontrado.nome);
-        msg = msg.replace(/{{ITENS_PEDIDO}}/g, itensPedidoAtual.join(', '));
+        msg = msg.replace(/{{ITENS_PEDIDO}}/g, itensPedidoAtual.join('\n')); // Cada item em uma nova linha
         msg = msg.replace(/{{TOTAL_PEDIDO}}/g, total.toFixed(2).replace('.', ','));
         mensagemFinal = msg;
     }
@@ -1109,7 +1331,6 @@
     historico.unshift({ 
         nome: nomeClientePrincipalParaHistorico, 
         numero: numeroParaWhatsapp, 
-        // Removido 'local' do histórico
         total: primeiroPedidoComposto ? (primeiroPedidoComposto.total + total) : total, 
         data: new Date(), 
         mensagem: mensagemFinal 
@@ -1130,12 +1351,9 @@
     atualizarTotal();
     document.getElementById("produtos-area").innerHTML = "";
     document.getElementById("cliente").value = "";
-    // Removido document.getElementById("buscarLocalCliente").value = "";
     carregarCategorias(); 
     categoriaAtiva = ''; 
     filtrarClientesPorInput();
-    // Removido atualizarListaLocais(); 
-    // Removido atualizarListaLocaisBusca(); 
   }
 
   function adicionarPedidoComposto() {
@@ -1155,7 +1373,6 @@
     primeiroPedidoComposto = {
         nomeCliente: encontrado.nome,
         numeroCliente: encontrado.numero,
-        // Removido localCliente do primeiroPedidoComposto
         itens: itensPrimeiroPedido,
         total: total
     };
@@ -1192,7 +1409,6 @@
   function salvarCliente() {
     let nome = document.getElementById("nomeCliente").value.trim();
     let numero = document.getElementById("numeroCliente").value.trim();
-    // Removido let local = document.getElementById("localCliente").value.trim();
 
     if (!nome || !numero) {
         alert("Preencha nome e número do cliente.");
@@ -1201,30 +1417,33 @@
 
     const indexClienteExistente = clientes.findIndex(c => c.numero === numero);
 
+    const messageElement = document.getElementById("mensagemSalvo");
+    messageElement.classList.remove('message-success', 'message-error');
+
     if (indexClienteExistente !== -1) {
         clientes[indexClienteExistente].nome = nome;
-        // Removido clientes[indexClienteExistente].local = local;
-        alert("Cadastro de cliente atualizado com sucesso!");
+        messageElement.innerText = "Cadastro de cliente atualizado com sucesso!";
+        messageElement.classList.add('message-success');
     } else {
         if (clientes.some(c => c.numero === numero)) {
-            alert("Já existe um cliente com este número de WhatsApp. Por favor, edite o cadastro existente.");
+            messageElement.innerText = "Já existe um cliente com este número de WhatsApp. Por favor, edite o cadastro existente.";
+            messageElement.classList.add('message-error');
+            messageElement.style.display = "block";
+            setTimeout(() => messageElement.style.display = "none", 3000);
             return;
         }
-        clientes.push({ nome, numero }); // Removido local
-        document.getElementById("mensagemSalvo").style.display = "block";
-        setTimeout(() => document.getElementById("mensagemSalvo").style.display = "none", 3000);
-        alert("Novo cliente salvo com sucesso!");
+        clientes.push({ nome, numero });
+        messageElement.innerText = "Novo cliente salvo com sucesso!";
+        messageElement.classList.add('message-success');
     }
     
+    messageElement.style.display = "block";
+    setTimeout(() => messageElement.style.display = "none", 3000);
+    
     filtrarClientesPorInput(); 
-    // Removido atualizarListaLocais(); 
-    // Removido atualizarListaLocaisBusca(); 
-    // Removido atualizarListaClientesCadastro(); 
-    // Removido atualizarListaClientesCadastroNumero();
     
     document.getElementById("nomeCliente").value = "";
     document.getElementById("numeroCliente").value = "";
-    // Removido document.getElementById("localCliente").value = "";
     
     salvarDadosNoLocalStorage();
   }
@@ -1242,8 +1461,7 @@
 
     clientesFiltrados.forEach(c => {
       const opt = document.createElement("option");
-      opt.value = c.nome; // Define o valor da opção como apenas o nome do cliente
-      opt.textContent = `${c.nome} - ${c.numero}`; // Exibe Nome - Telefone
+      opt.value = `${c.nome} - ${c.numero}`; // Exibe Nome - Telefone na lista
       datalist.appendChild(opt);
     });
   }
@@ -1305,7 +1523,7 @@
 
   function adicionarProduto() {
     const nome = document.getElementById("nomeProduto").value;
-    const preco = parseFloat(document.getElementById("precoProduto").value);
+    const preco = parseFloat(document.getElementById("precoProduto").value.replace(',', '.')); // Aceita vírgula como separador decimal
     const cat = document.getElementById("categoriaProduto").value;
 
     if (!nome || nome.trim() === '') {
@@ -1313,7 +1531,7 @@
         return;
     }
     if (isNaN(preco) || preco <= 0) {
-        alert("Por favor, insira um preço válido para o produto.");
+        alert("Por favor, insira um preço válido (apenas números) para o produto.");
         return;
     }
     if (!cat) {
@@ -1326,10 +1544,9 @@
         carregarCategorias(); 
     }
 
-    // Verifica se o produto já existe na categoria
     const produtoExistente = produtos[cat].find(p => p.nome.toLowerCase() === nome.toLowerCase());
     if (produtoExistente) {
-        if (confirm(`Produto "${nome}" já existe na categoria "${cat}". Deseja atualizar o preço para R$${preco.toFixed(2)}?`)) {
+        if (confirm(`Produto "${nome}" já existe na categoria "${cat}". Deseja atualizar o preço para R$${preco.toFixed(2).replace('.', ',')}?`)) {
             produtoExistente.preco = preco;
             alert("Produto atualizado com sucesso!");
         } else {
@@ -1356,8 +1573,9 @@
     const p = produtos[cat][index];
     if (acao === 'editar') {
       const novoNome = prompt("Novo nome do produto:", p.nome);
-      const novoPreco = parseFloat(prompt("Novo preço:", p.preco));
-      
+      const novoPrecoStr = prompt("Novo preço:", p.preco.toFixed(2).replace('.', ',')); // Exibe com vírgula
+      const novoPreco = parseFloat(novoPrecoStr.replace(',', '.')); // Converte para ponto
+
       let mudou = false;
       if (novoNome && novoNome.trim() !== '' && novoNome !== p.nome) {
           if (produtos[cat].some((prod, idx) => idx !== index && prod.nome.toLowerCase() === novoNome.toLowerCase())) {
@@ -1367,7 +1585,7 @@
           produtos[cat][index].nome = novoNome;
           mudou = true;
       }
-      if (!isNaN(novoPreco) && novoPreco > 0 && novoPreco !== p.preco) {
+      if (!isNaN(novoPreco) && novoPreco >= 0 && novoPreco !== p.preco) { // Preço pode ser 0
           produtos[cat][index].preco = novoPreco;
           mudou = true;
       }
@@ -1400,10 +1618,15 @@
         area.innerHTML = "<p>Nenhum pedido no histórico ainda.</p>";
         return;
     }
-    historico.forEach(ped => {
+    historico.forEach((ped, index) => {
       const div = document.createElement("div");
-      // Removido ped.local da exibição
-      div.innerHTML = `<strong>${ped.nome}</strong> (${ped.numero})<br>${new Date(ped.data).toLocaleString()}<br>Total: R$${ped.total.toFixed(2)}<br><button onclick="window.open('https://wa.me/${ped.numero}?text=${encodeURIComponent(ped.mensagem)}','_blank')">ENVIAR WHATSAPP NOVAMENTE</button><hr>`;
+      div.className = "historico-item"; /* Adiciona uma classe para estilização */
+      div.innerHTML = `
+        <p><strong>${ped.nome}</strong> (${ped.numero})</p>
+        <p>${new Date(ped.data).toLocaleString()}</p>
+        <p>Total: R$${ped.total.toFixed(2).replace('.', ',')}</p>
+        <button onclick="window.open('https://wa.me/${ped.numero}?text=${encodeURIComponent(ped.mensagem)}','_blank')">ENVIAR WHATSAPP NOVAMENTE</button>
+        <hr style="border-color: var(--border-color); margin: 15px 0;">`; /* Linha divisória */
       area.appendChild(div);
     });
   }
@@ -1415,7 +1638,6 @@
     const resultados = historico.filter(p => 
         p.nome.toLowerCase().includes(textoBusca) || 
         p.numero.includes(textoBusca)
-        // Removido filtro por local
     );
 
     if (resultados.length === 0) {
@@ -1423,16 +1645,25 @@
         return;
     }
 
-    resultados.forEach(ped => {
+    resultados.forEach((ped, index) => {
       const div = document.createElement("div");
-      // Removido ped.local da exibição
-      div.innerHTML = `<strong>${ped.nome}</strong> (${ped.numero})<br>${new Date(ped.data).toLocaleString()}<br>Total: R$${ped.total.toFixed(2)}<br><button onclick="window.open('https://wa.me/${ped.numero}?text=${encodeURIComponent(ped.mensagem)}','_blank')">ENVIAR WHATSAPP NOVAMENTE</button><hr>`;
+      div.className = "historico-item";
+      div.innerHTML = `
+        <p><strong>${ped.nome}</strong> (${ped.numero})</p>
+        <p>${new Date(ped.data).toLocaleString()}</p>
+        <p>Total: R$${ped.total.toFixed(2).replace('.', ',')}</p>
+        <button onclick="window.open('https://wa.me/${ped.numero}?text=${encodeURIComponent(ped.mensagem)}','_blank')">ENVIAR WHATSAPP NOVAMENTE</button>
+        <hr style="border-color: var(--border-color); margin: 15px 0;">`;
       area.appendChild(div);
     });
   }
 
   function processarVCF(input) {
     const arquivo = input.files[0];
+    const messageElement = document.getElementById('resultadoVCF');
+    messageElement.classList.remove('message-success', 'message-error');
+    messageElement.style.display = 'none';
+
     if (!arquivo) return;
 
     const leitor = new FileReader();
@@ -1445,8 +1676,9 @@
       linhas.forEach(linha => {
         linha = linha.trim();
 
-        if (linha.startsWith('FN:')) { 
-          nomeAtual = linha.replace('FN:', '').trim();
+        if (linha.startsWith('FN:') || linha.startsWith('N:')) { 
+            const nomeParts = linha.split(':');
+            nomeAtual = nomeParts[nomeParts.length - 1].split(';').reverse().join(' ').trim(); // FN ou N podem ter formato diferente
         } else if (linha.startsWith('TEL')) {
           const partesTelefone = linha.split(':');
           let telefone = '';
@@ -1458,7 +1690,6 @@
             const novoCliente = {
               nome: nomeAtual,
               numero: telefone
-              // Removido local
             };
 
             if (!clientes.some(c => c.numero === telefone)) {
@@ -1472,11 +1703,21 @@
       });
 
       filtrarClientesPorInput();
-      document.getElementById('resultadoVCF').innerText = `${contatosAdicionados} contato(s) importado(s) com sucesso!`;
+      messageElement.innerText = `${contatosAdicionados} contato(s) importado(s) com sucesso!`;
+      messageElement.classList.add('message-success');
+      messageElement.style.display = 'block';
+      setTimeout(() => messageElement.style.display = "none", 3000);
       input.value = ''; 
       
       salvarDadosNoLocalStorage();
     };
+
+    leitor.onerror = function() {
+        messageElement.innerText = "Erro ao ler o arquivo VCF.";
+        messageElement.classList.add('message-error');
+        messageElement.style.display = 'block';
+        setTimeout(() => messageElement.style.display = "none", 3000);
+    }
 
     leitor.readAsText(arquivo);
   }
@@ -1484,11 +1725,13 @@
   async function importarProdutosPlanilha(event) {
     const file = event.target.files[0];
     const messageElement = document.getElementById('importProductsMessage');
-    messageElement.innerText = ''; 
+    messageElement.classList.remove('message-success', 'message-error');
+    messageElement.style.display = 'none';
 
     if (!file) {
       messageElement.innerText = 'Nenhum arquivo selecionado.';
-      messageElement.style.color = 'red';
+      messageElement.classList.add('message-error');
+      messageElement.style.display = 'block';
       return;
     }
 
@@ -1509,7 +1752,7 @@
             const nomeProduto = String(row[1] || '').trim();
             const preco = parseFloat(String(row[2]).replace(',', '.') || 0); 
 
-            if (!categoria || !nomeProduto || isNaN(preco) || preco <= 0) {
+            if (!categoria || !nomeProduto || isNaN(preco) || preco < 0) { // Preço pode ser zero
                 console.warn(`Linha ${i + 1} ignorada: Dados inválidos (categoria: "${categoria}", produto: "${nomeProduto}", preço: "${row[2]}")`);
                 continue; 
             }
@@ -1525,10 +1768,8 @@
                     produtoExistente.preco = preco;
                     produtosAtualizados++;
                 }
-                // Garante que a quantidade seja 0 ao atualizar
                 produtoExistente.quantidade = 0; 
             } else {
-                // Garante que a quantidade seja 0 ao adicionar novo produto
                 produtos[categoria].push({ nome: nomeProduto, preco: preco, quantidade: 0 });
                 produtosAdicionados++;
             }
@@ -1542,14 +1783,17 @@
         preencherSelectCategoria(); 
 
         messageElement.innerText = `Importação concluída: ${produtosAdicionados} produtos novos adicionados, ${produtosAtualizados} produtos atualizados, ${categoriasAdicionadas} categorias novas criadas.`;
-        messageElement.style.color = 'green';
+        messageElement.classList.add('message-success');
+        messageElement.style.display = 'block';
 
     } catch (error) {
         messageElement.innerText = `Erro ao processar a planilha: ${error.message}. Verifique o formato do arquivo e das colunas.`;
-        messageElement.style.color = 'red';
+        messageElement.classList.add('message-error');
+        messageElement.style.display = 'block';
         console.error("Erro na importação da planilha:", error);
     } finally {
         event.target.value = ''; 
+        setTimeout(() => messageElement.style.display = "none", 5000); // Exibe por mais tempo em caso de erro
     }
   }
 
@@ -1559,15 +1803,19 @@
       if (!currentUser) return;
       document.getElementById('emailAutomaticoInput').value = emailAutomaticoConfig.email;
       document.getElementById('frequenciaEnvio').value = emailAutomaticoConfig.frequencia;
+      // Reseta as mensagens de feedback
+      document.getElementById('emailAutomaticoMessage').style.display = 'none';
+      document.getElementById('frequenciaEnvioMessage').style.display = 'none';
   }
 
   function salvarEmailAutomatico() {
       const email = document.getElementById('emailAutomaticoInput').value.trim();
       const messageElement = document.getElementById('emailAutomaticoMessage');
+      messageElement.classList.remove('message-success', 'message-error');
 
       if (!email || !email.includes('@') || !email.includes('.')) {
           messageElement.innerText = "Por favor, digite um endereço de e-mail válido.";
-          messageElement.style.color = 'red';
+          messageElement.classList.add('message-error');
           messageElement.style.display = 'block';
           return;
       }
@@ -1575,12 +1823,13 @@
       emailAutomaticoConfig.email = email;
       salvarDadosNoLocalStorage();
       messageElement.innerText = "E-mail salvo com sucesso!";
-      messageElement.style.color = 'green';
+      messageElement.classList.add('message-success');
       messageElement.style.display = 'block';
       setTimeout(() => messageElement.style.display = 'none', 3000);
       
       // Se o e-mail foi salvo pela primeira vez ou mudou, redefinir lastSent para forçar o próximo envio
-      if (!emailAutomaticoConfig.lastSent) {
+      // Só reseta se o e-mail mudou de um valor vazio para um valor ou se o valor atual é diferente do salvo.
+      if (!emailAutomaticoConfig.lastSent || (emailAutomaticoConfig.email !== email)) {
           emailAutomaticoConfig.lastSent = null; 
           salvarDadosNoLocalStorage();
       }
@@ -1589,18 +1838,19 @@
   function salvarFrequenciaEnvio() {
       const frequencia = document.getElementById('frequenciaEnvio').value;
       const messageElement = document.getElementById('frequenciaEnvioMessage');
+      messageElement.classList.remove('message-success', 'message-error');
 
       emailAutomaticoConfig.frequencia = frequencia;
       salvarDadosNoLocalStorage();
       messageElement.innerText = "Frequência de envio salva com sucesso!";
-      messageElement.style.color = 'green';
+      messageElement.classList.add('message-success');
       messageElement.style.display = 'block';
       setTimeout(() => messageElement.style.display = 'none', 3000);
   }
 
   function gerarHistoricoParaEmail(isAutomatic = false) {
     if (historico.length === 0) {
-      return "Nenhum pedido registrado no histórico.";
+      return `Histórico de Pedidos - Vendedor: ${currentUser}\n\nNenhum pedido registrado no histórico.`;
     }
 
     let textoHistorico = `Histórico de Pedidos - Vendedor: ${currentUser}\n\n`;
@@ -1608,14 +1858,9 @@
       textoHistorico += `--- Pedido #${historico.length - index} ---\n`; 
       textoHistorico += `Cliente: ${ped.nome}\n`;
       textoHistorico += `Telefone: ${ped.numero}\n`;
-      // Removido ped.local da geração do histórico para e-mail
-      textoHistorico += `Data: ${new Date(ped.data).toLocaleString()}\n`;
+      textoHistorico += `Data: ${new Date(ped.data).toLocaleString('pt-BR')}\n`;
       textoHistorico += `Total: R$${ped.total.toFixed(2).replace('.', ',')}\n`;
-      if (isAutomatic) { // Inclui a mensagem completa apenas para envios automáticos para referência
-        textoHistorico += `Mensagem enviada (completa): \n"${ped.mensagem}"\n\n`;
-      } else { // Para download manual, apenas uma parte da mensagem
-        textoHistorico += `Mensagem enviada (resumo): \n"${ped.mensagem.substring(0, 100)}..."\n\n`;
-      }
+      textoHistorico += `Mensagem enviada:\n"${ped.mensagem}"\n\n`; // Sempre inclui a mensagem completa agora
     });
     return textoHistorico;
   }
@@ -1623,7 +1868,7 @@
   function enviarHistoricoEmail(isAutomatic = false) {
     const email = emailAutomaticoConfig.email;
     if (!email || !email.includes('@') || !email.includes('.')) {
-      if (!isAutomatic) { // Apenas alerta se for envio manual e o e-mail não estiver configurado
+      if (!isAutomatic) { 
         alert("Por favor, configure um e-mail válido nas Configurações antes de enviar o histórico.");
       }
       return;
@@ -1633,7 +1878,8 @@
     const dataAtual = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
     const nomeArquivo = `Historico_Pedidos_${currentUser}_${dataAtual}.txt`;
     
-    // Simula o download do arquivo. Em um ambiente real, este arquivo seria enviado por um servidor de e-mail.
+    // Cria um link para download. É importante entender que browsers não podem enviar e-mails diretamente por segurança.
+    // Este código SIMULA o "envio" baixando o arquivo TXT, que o usuário pode anexar manualmente.
     const blob = new Blob([historicoTexto], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1647,19 +1893,20 @@
     if (isAutomatic) {
         emailAutomaticoConfig.lastSent = new Date();
         salvarDadosNoLocalStorage();
-        console.log(`[Email Automático] Histórico enviado para ${email} em ${new Date().toLocaleString()}`);
+        console.log(`[Email Automático] Arquivo de histórico gerado para ${email} em ${new Date().toLocaleString('pt-BR')}`);
+        alert(`Histórico automático gerado para ${email}. Verifique seus downloads.`);
     } else {
         alert(`Arquivo "${nomeArquivo}" gerado com sucesso! Salve-o e anexe-o ao seu aplicativo de e-mail para enviar para ${email}.`);
     }
   }
 
   function enviarHistoricoEmailManual() {
-      enviarHistoricoEmail(false); // Chama a função de envio para o modo manual
+      enviarHistoricoEmail(false); 
   }
 
   function verificarEEnviarEmailAutomtico() {
     if (!currentUser || !emailAutomaticoConfig.email || emailAutomaticoConfig.frequencia === 'manual') {
-        return; // Não envia se não houver usuário, e-mail configurado ou se a frequência for manual
+        return; 
     }
 
     const now = new Date();
@@ -1667,30 +1914,27 @@
     let shouldSend = false;
 
     if (!lastSent) {
-        shouldSend = true; // Envia se nunca foi enviado
+        shouldSend = true; 
     } else {
-        const timeDiff = now.getTime() - lastSent.getTime(); // Diferença em milissegundos
+        const timeDiff = now.getTime() - lastSent.getTime(); 
         const oneDay = 24 * 60 * 60 * 1000;
-        const oneWeek = 7 * oneDay;
-        const oneMonth = 30 * oneDay; // Aproximação
-        const oneYear = 365 * oneDay; // Aproximação
 
         switch (emailAutomaticoConfig.frequencia) {
             case 'daily':
                 shouldSend = timeDiff >= oneDay;
                 break;
             case 'weekly':
-                shouldSend = timeDiff >= oneWeek;
+                shouldSend = timeDiff >= (7 * oneDay);
                 break;
             case 'monthly':
                 // Verifica se passou um mês civil
-                if (now.getMonth() !== lastSent.getMonth() || now.getFullYear() !== lastSent.getFullYear()) {
+                if (now.getDate() >= lastSent.getDate() && (now.getMonth() !== lastSent.getMonth() || now.getFullYear() !== lastSent.getFullYear())) {
                     shouldSend = true;
                 }
                 break;
             case 'yearly':
                 // Verifica se passou um ano civil
-                if (now.getFullYear() !== lastSent.getFullYear()) {
+                if (now.getMonth() === lastSent.getMonth() && now.getDate() >= lastSent.getDate() && now.getFullYear() !== lastSent.getFullYear()) {
                     shouldSend = true;
                 }
                 break;
@@ -1699,7 +1943,7 @@
 
     if (shouldSend) {
         console.log(`Iniciando envio automático de e-mail (${emailAutomaticoConfig.frequencia})...`);
-        enviarHistoricoEmail(true); // Chama a função de envio para o modo automático
+        enviarHistoricoEmail(true); 
     }
   }
 
